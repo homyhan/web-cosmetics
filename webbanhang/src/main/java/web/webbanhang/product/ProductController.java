@@ -8,6 +8,7 @@ import web.webbanhang.jpa.CategoryJpa;
 import web.webbanhang.jpa.ProductJpa;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ProductController {
@@ -48,4 +49,50 @@ public class ProductController {
         Product prod = productRepositoty.findById(id).get();
         return prod;
     }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
+        Optional<Product> optionalProduct = productRepositoty.findById(id);
+
+        if (!optionalProduct.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Product existingProduct = optionalProduct.get();
+
+        existingProduct.setNameProd(updatedProduct.getNameProd());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setImg(updatedProduct.getImg());
+        existingProduct.setQuantity(updatedProduct.getQuantity());
+        existingProduct.setDescription(updatedProduct.getDescription());
+        existingProduct.setCategory(updatedProduct.getCategory());
+
+        Category updatedCategory = updatedProduct.getCategory();
+        if (updatedCategory != null) {
+            Category existingCategory = categoryRepository.findByNameCategory(updatedCategory.getNameCategory());
+            if (existingCategory == null) {
+                return ResponseEntity.badRequest().body("Category not found");
+            }
+            existingProduct.setCategory(existingCategory);
+        }
+
+        productRepositoty.save(existingProduct);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
+        Optional<Product> optionalProduct = productRepositoty.findById(id);
+
+        if (!optionalProduct.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Product productToDelete = optionalProduct.get();
+        productRepositoty.delete(productToDelete);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
