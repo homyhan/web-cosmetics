@@ -1,18 +1,14 @@
 package web.webbanhang.user;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import web.webbanhang.cart.Cart;
+import web.webbanhang.product.Product;
 import web.webbanhang.role.Role;
 @Entity
 public class User {
@@ -37,6 +33,9 @@ public class User {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "role_id")
 	 private Role role;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Cart> carts = new ArrayList<>();
 	
 	 public User(int id, String fullName, String email, String address, String phone, String password, Role role) {
 	        this.id = id;
@@ -92,6 +91,20 @@ public class User {
 	public void setRole(Role role) {
 		this.role = role;
 	}
+
+	public List<Cart> getCarts() {
+		return carts;
+	}
+
+	public void setCarts(List<Cart> carts) {
+		this.carts = carts;
+	}
+
+//	public void addToCart(Product product, int quantity) {
+//		Cart cart = new Cart(this, product, quantity);
+//		carts.add(cart);
+//		product.setQuantity(product.getQuantity() - quantity); // Giảm số lượng sản phẩm khi thêm vào giỏ hàng
+//	}
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", fullName=" + fullName + ", email=" + email + ", address=" + address + ", phone="
