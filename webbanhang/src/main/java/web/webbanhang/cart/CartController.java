@@ -1,11 +1,9 @@
 package web.webbanhang.cart;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import web.webbanhang.jpa.CartJpa;
 import web.webbanhang.jpa.ProductJpa;
 import web.webbanhang.jpa.UserJpa;
@@ -61,6 +59,18 @@ public class CartController {
         } catch (Exception e) {
             System.err.println("Error adding to cart: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding to cart");
+        }
+    }
+
+    @Transactional
+    @DeleteMapping("/carts")
+    public ResponseEntity<String> removeFromCart(@RequestParam int userId, @RequestParam int productId) {
+        try {
+            cartRepository.deleteByUserIdAndProductId(userId, productId);
+            return ResponseEntity.ok("Removed from cart successfully");
+        } catch (Exception e) {
+            System.err.println("Error removing from cart: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error removing from cart");
         }
     }
 

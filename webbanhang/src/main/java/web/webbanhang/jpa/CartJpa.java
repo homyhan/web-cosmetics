@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface CartJpa extends JpaRepository<Cart, Integer>{
     Optional<Cart> findByUserAndProduct(User user, Product product);
+    void deleteByUserIdAndProductId(int userId, int productId);
 }
