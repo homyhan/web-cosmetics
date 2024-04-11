@@ -93,4 +93,78 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+//	@GetMapping("/users/search/{keyword}")
+//	public ResponseEntity<List<User>> searchUsersByName(@PathVariable String keyword) {
+//		try {
+//			System.out.println("Searching users by keyword: " + keyword);
+//			List<User> users = userRepository.findByFullNameContainingIgnoreCase(keyword);
+//
+//			if (users.isEmpty()) {
+//				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//			}
+//
+//			return ResponseEntity.ok(users);
+//		} catch (Exception e) {
+//			System.err.println("Lỗi khi tìm kiếm user theo tên: " + e.getMessage());
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//		}
+//	}
+
+//	@GetMapping("/users/search/{keyword}")
+//	public ResponseEntity<List<User>> searchUsersByName(@PathVariable String keyword) {
+//		try {
+//			// Xử lý chuỗi keyword
+//			keyword = keyword.toLowerCase().replaceAll("\\s+", ""); // Chuyển thành chữ thường và loại bỏ khoảng trắng
+//			keyword = java.text.Normalizer.normalize(keyword, java.text.Normalizer.Form.NFD)
+//					.replaceAll("\\p{M}", ""); // Loại bỏ dấu
+//
+//			List<User> users = userRepository.findByFullNameContainingIgnoreCase(keyword);
+//
+//			if (users.isEmpty()) {
+//				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//			}
+//
+//			return ResponseEntity.ok(users);
+//		} catch (Exception e) {
+//			System.err.println("Lỗi khi tìm kiếm user theo tên: " + e.getMessage());
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//		}
+//	}
+
+
+	@GetMapping("/users/search/{keyword}")
+	public ResponseEntity<List<User>> searchUsersByName(@PathVariable String keyword) {
+		try {
+			// Chuyển về chữ thường
+			keyword = keyword.toLowerCase();
+
+			// Loại bỏ dấu
+			keyword = removeAccents(keyword);
+
+			List<User> users = userRepository.findByFullNameContainingIgnoreCase(keyword);
+
+			if (users.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+			}
+
+			return ResponseEntity.ok(users);
+		} catch (Exception e) {
+			System.err.println("Lỗi khi tìm kiếm user theo tên: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
+	// Hàm loại bỏ dấu
+	private String removeAccents(String input) {
+		String[] accentChars = {"à", "á", "ạ", "ả", "ã", "â", "ầ", "ấ", "ậ", "ẩ", "ẫ", "ă", "ằ", "ắ", "ặ", "ẳ", "ẵ", "è", "é", "ẹ", "ẻ", "ẽ", "ê", "ề", "ế", "ệ", "ể", "ễ", "ì", "í", "ị", "ỉ", "ĩ", "ò", "ó", "ọ", "ỏ", "õ", "ô", "ồ", "ố", "ộ", "ổ", "ỗ", "ơ", "ờ", "ớ", "ợ", "ở", "ỡ", "ù", "ú", "ụ", "ủ", "ũ", "ư", "ừ", "ứ", "ự", "ử", "ữ", "ỳ", "ý", "ỵ", "ỷ", "ỹ", "đ", "À", "Á", "Ạ", "Ả", "Ã", "Â", "Ầ", "Ấ", "Ậ", "Ẩ", "Ẫ", "Ă", "Ằ", "Ắ", "Ặ", "Ẳ", "Ẵ", "È", "É", "Ẹ", "Ẻ", "Ẽ", "Ê", "Ề", "Ế", "Ệ", "Ể", "Ễ", "Ì", "Í", "Ị", "Ỉ", "Ĩ", "Ò", "Ó", "Ọ", "Ỏ", "Õ", "Ô", "Ồ", "Ố", "Ộ", "Ổ", "Ỗ", "Ơ", "Ờ", "Ớ", "Ợ", "Ở", "Ỡ", "Ù", "Ú", "Ụ", "Ủ", "Ũ", "Ư", "Ừ", "Ứ", "Ự", "Ử", "Ữ", "Ỳ", "Ý", "Ỵ", "Ỷ", "Ỹ", "Đ"};
+		String[] noAccentChars = {"a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", "i", "i", "i", "i", "i", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "u", "u", "u", "u", "u", "u", "u", "u", "u", "u", "u", "y", "y", "y", "y", "y", "d", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "I", "I", "I", "I", "I", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "U", "U", "U", "U", "U", "U", "U", "U", "U", "U", "U", "Y", "Y", "Y", "Y", "Y", "D"};
+
+		for (int i = 0; i < accentChars.length; i++) {
+			input = input.replace(accentChars[i], noAccentChars[i]);
+		}
+
+		return input;
+	}
+
+
 }
