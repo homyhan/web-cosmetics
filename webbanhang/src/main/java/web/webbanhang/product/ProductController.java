@@ -94,5 +94,25 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/products/search/{keyword}")
+    public ResponseEntity<List<Product>> searchProductsByName(@PathVariable String keyword) {
+        try {
+            // Xử lý chuỗi keyword
+            keyword = keyword.toLowerCase().replaceAll("\\s+", ""); // Chuyển thành chữ thường và loại bỏ khoảng trắng
+
+            // Tìm sản phẩm bằng tên tương ứng
+            List<Product> products = productRepositoty.findByNameProdContainingIgnoreCase(keyword);
+
+            if (products.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            System.err.println("Error searching products by name: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 }

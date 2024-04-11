@@ -1,5 +1,6 @@
 package web.webbanhang.category;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import web.webbanhang.jpa.CategoryJpa;
@@ -65,6 +66,26 @@ public class CategoryController {
         categoryRepository.delete(categoryToDelete);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/category/search/{keyword}")
+    public ResponseEntity<List<Category>> searchCategoriesByName(@PathVariable String keyword) {
+        try {
+            // Xử lý chuỗi keyword
+            keyword = keyword.toLowerCase().replaceAll("\\s+", ""); // Chuyển thành chữ thường và loại bỏ khoảng trắng
+
+            // Tìm category bằng tên tương ứng
+            List<Category> categories = categoryRepository.findByNameCategoryContainingIgnoreCase(keyword);
+
+            if (categories.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            return ResponseEntity.ok(categories);
+        } catch (Exception e) {
+            System.err.println("Error searching categories by name: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
 }
