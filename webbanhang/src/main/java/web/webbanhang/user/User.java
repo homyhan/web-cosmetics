@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import web.webbanhang.cart.Cart;
+import web.webbanhang.comment.Comment;
 import web.webbanhang.product.Product;
 import web.webbanhang.role.Role;
 @Entity
@@ -36,6 +37,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Cart> carts = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Comment> comments = new ArrayList<>();
 	
 	 public User(int id, String fullName, String email, String address, String phone, String password, Role role) {
 	        this.id = id;
@@ -100,7 +104,15 @@ public class User {
 		this.carts = carts;
 	}
 
-//	public void addToCart(Product product, int quantity) {
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+
+	//	public void addToCart(Product product, int quantity) {
 //		Cart cart = new Cart(this, product, quantity);
 //		carts.add(cart);
 //		product.setQuantity(product.getQuantity() - quantity); // Giảm số lượng sản phẩm khi thêm vào giỏ hàng

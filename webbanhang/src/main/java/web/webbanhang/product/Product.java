@@ -3,6 +3,10 @@ package web.webbanhang.product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import web.webbanhang.category.Category;
+import web.webbanhang.comment.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Product {
@@ -23,6 +27,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 
     public Product(int id, String nameProd, double price, String img, int quantity, String description, Category category) {
         this.id = id;
@@ -92,6 +99,14 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     @Override
