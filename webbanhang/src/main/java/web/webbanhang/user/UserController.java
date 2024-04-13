@@ -1,6 +1,7 @@
 package web.webbanhang.user;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -166,5 +167,105 @@ public class UserController {
 		return input;
 	}
 
+	@PutMapping("/users/{id}")
+	public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
+		try {
+			// Tìm người dùng cần cập nhật trong cơ sở dữ liệu
+			Optional<User> optionalUser = userRepository.findById(id);
+
+			// Kiểm tra xem người dùng có tồn tại không
+			if (!optionalUser.isPresent()) {
+				return ResponseEntity.notFound().build();
+			}
+
+			User existingUser = optionalUser.get();
+
+			// Cập nhật thông tin người dùng với dữ liệu mới
+			existingUser.setFullName(updatedUser.getFullName());
+			existingUser.setEmail(updatedUser.getEmail());
+			existingUser.setAddress(updatedUser.getAddress());
+			existingUser.setPhone(updatedUser.getPhone());
+			existingUser.setPassword(updatedUser.getPassword());
+
+			// Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
+			userRepository.save(existingUser);
+
+			return ResponseEntity.ok(existingUser);
+		} catch (Exception e) {
+			System.err.println("Lỗi khi cập nhật thông tin người dùng: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@PutMapping("/users/{id}/status")
+	public ResponseEntity<User> updateUserStatus(@PathVariable int id, @RequestBody Map<String, Integer> statusMap) {
+		try {
+			// Tìm người dùng cần cập nhật trạng thái trong cơ sở dữ liệu
+			Optional<User> optionalUser = userRepository.findById(id);
+
+			// Kiểm tra xem người dùng có tồn tại không
+			if (!optionalUser.isPresent()) {
+				return ResponseEntity.notFound().build();
+			}
+
+			User user = optionalUser.get();
+
+			// Kiểm tra xem status có tồn tại trong body không
+			if (!statusMap.containsKey("status")) {
+				return ResponseEntity.badRequest().build();
+			}
+
+			int status = statusMap.get("status");
+
+			// Kiểm tra xem trạng thái nhập vào có hợp lệ không (0 hoặc 1)
+			if (status != 0 && status != 1) {
+				return ResponseEntity.badRequest().build();
+			}
+
+			// Cập nhật trạng thái của người dùng
+			user.setStatus(status);
+
+			// Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
+			userRepository.save(user);
+
+			return ResponseEntity.ok(user);
+		} catch (Exception e) {
+			System.err.println("Lỗi khi cập nhật trạng thái người dùng: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@PutMapping("/users/{id}/password")
+	public ResponseEntity<User> changePassword(@PathVariable int id, @RequestBody Map<String, String> passwordMap) {
+		try {
+			// Tìm người dùng cần thay đổi mật khẩu trong cơ sở dữ liệu
+			Optional<User> optionalUser = userRepository.findById(id);
+
+			// Kiểm tra xem người dùng có tồn tại không
+			if (!optionalUser.isPresent()) {
+				return ResponseEntity.notFound().build();
+			}
+
+			User user = optionalUser.get();
+
+			// Kiểm tra xem passwordMap có chứa trường password mới không
+			if (!passwordMap.containsKey("password")) {
+				return ResponseEntity.badRequest().build();
+			}
+
+			String newPassword = passwordMap.get("password");
+
+			// Cập nhật mật khẩu mới cho người dùng
+			user.setPassword(newPassword);
+
+			// Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
+			userRepository.save(user);
+
+			return ResponseEntity.ok(user);
+		} catch (Exception e) {
+			System.err.println("Lỗi khi thay đổi mật khẩu: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
 }
