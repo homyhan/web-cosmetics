@@ -1,14 +1,10 @@
 package web.webbanhang.user;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import web.webbanhang.cart.Cart;
-import web.webbanhang.product.Product;
 import web.webbanhang.role.Role;
 @Entity
 public class User {
@@ -29,6 +25,7 @@ public class User {
 	private String phone;
 
 	private String password;
+	private int status;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "role_id")
@@ -37,13 +34,14 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Cart> carts = new ArrayList<>();
 	
-	 public User(int id, String fullName, String email, String address, String phone, String password, Role role) {
+	 public User(int id, String fullName, String email, String address, String phone, String password,  int status,  Role role) {
 	        this.id = id;
 	        this.fullName = fullName;
 	        this.email= email;
 	        this.address = address;
 	        this.phone = phone;
 	        this.password = password;
+			this.status = status;
 	        this.role =role;
 	    }
 	public int getId() {
@@ -85,6 +83,14 @@ public class User {
 		this.password = password;
 	}
 
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
 	public Role getRole() {
 		return role;
 	}
@@ -108,7 +114,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", fullName=" + fullName + ", email=" + email + ", address=" + address + ", phone="
-				+ phone + ", password=" + password + "]";
+				+ phone + ", password=" + password + ", status=" + status + "]";
 	}
 	
 	
