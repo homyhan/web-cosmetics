@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import web.webbanhang.category.Category;
 import web.webbanhang.jpa.CategoryJpa;
 import web.webbanhang.jpa.ProductJpa;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +45,41 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/productsPage")
+    public ResponseEntity<Page<Product>> retrieveAllProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size);
+            Page<Product> products = productRepositoty.findAll(pageRequest);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            System.err.println("Error retrieving products: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+//    @GetMapping("/products")
+//    public ResponseEntity<?> retrieveAllProduct(
+//            @RequestParam(required = false, defaultValue = "0") Integer page,
+//            @RequestParam(required = false, defaultValue = "10") Integer size
+//    ) {
+//        try {
+//            if (page != null && size != null) {
+//                PageRequest pageRequest = PageRequest.of(page, size);
+//                Page<Product> products = productRepositoty.findAll(pageRequest);
+//                return ResponseEntity.ok(products);
+//            } else {
+//                List<Product> products = productRepositoty.findAll();
+//                return ResponseEntity.ok(products);
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Error retrieving products: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 
     @GetMapping("/product/{id}")
     public Product getProductById(@PathVariable int id){
