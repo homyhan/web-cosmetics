@@ -3,6 +3,8 @@ package web.webbanhang.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import web.webbanhang.cart.Cart;
 
@@ -36,9 +38,11 @@ public class User {
 	 private Role role;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<Cart> carts = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<Comment> comments = new ArrayList<>();
 	
 	 public User(int id, String fullName, String email, String address, String phone, String password,  int status,  Role role) {

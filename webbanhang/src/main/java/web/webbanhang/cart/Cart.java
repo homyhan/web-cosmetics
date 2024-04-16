@@ -1,5 +1,6 @@
 package web.webbanhang.cart;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
@@ -15,6 +16,7 @@ public class Cart {
     private int id;
 
     @ManyToOne
+
     @JoinColumn(name = "user_id")
     private User user;
 
