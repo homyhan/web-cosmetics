@@ -1,5 +1,6 @@
 package web.webbanhang.product;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import web.webbanhang.category.Category;
@@ -29,6 +30,7 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
     public Product(int id, String nameProd, double price, String img, int quantity, String description, Category category) {

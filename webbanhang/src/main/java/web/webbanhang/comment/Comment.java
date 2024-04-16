@@ -1,5 +1,6 @@
 package web.webbanhang.comment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import web.webbanhang.product.Product;
 import web.webbanhang.user.User;
@@ -11,6 +12,7 @@ public class Comment {
     private int id;
 
     @ManyToOne
+
     @JoinColumn(name = "user_id")
     private User user;
 
