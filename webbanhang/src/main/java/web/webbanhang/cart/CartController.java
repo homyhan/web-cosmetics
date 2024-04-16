@@ -74,4 +74,22 @@ public class CartController {
         }
     }
 
+    @GetMapping("/carts/{userId}")
+    public ResponseEntity<List<Cart>> getUserCarts(@PathVariable int userId) {
+        try {
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (!optionalUser.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            User user = optionalUser.get();
+            List<Cart> userCarts = cartRepository.findByUser(user);
+
+            return ResponseEntity.ok(userCarts);
+        } catch (Exception e) {
+            System.err.println("Error getting user's carts: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }
