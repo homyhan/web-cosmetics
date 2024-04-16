@@ -6,9 +6,12 @@ import web.webbanhang.product.Product;
 import web.webbanhang.role.Role;
 import web.webbanhang.user.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CartJpa extends JpaRepository<Cart, Integer>{
     Optional<Cart> findByUserAndProduct(User user, Product product);
     void deleteByUserIdAndProductId(int userId, int productId);
+
+    List<Cart> findByUser(User user);
 }
