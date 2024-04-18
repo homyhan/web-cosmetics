@@ -4,10 +4,12 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import web.webbanhang.jpa.CartJpa;
-import web.webbanhang.jpa.ProductJpa;
-import web.webbanhang.jpa.UserJpa;
+import web.webbanhang.jpa.*;
+import web.webbanhang.order.CheckoutRequest;
+import web.webbanhang.order.OrderDetail;
+import web.webbanhang.order.Orders;
 import web.webbanhang.product.Product;
+import web.webbanhang.stateOrder.StateOrder;
 import web.webbanhang.user.User;
 
 import java.util.*;
@@ -18,10 +20,15 @@ public class CartController {
     private UserJpa userRepository;
     private ProductJpa productRepository;
 
-    public CartController(CartJpa cartRepository, UserJpa userRepository, ProductJpa productRepository) {
+    private OrderJpa orderRepository;
+    private StateOrderJpa stateOrderRepository;
+
+    public CartController(CartJpa cartRepository, UserJpa userRepository, ProductJpa productRepository, OrderJpa orderRepository, StateOrderJpa stateOrderRepository) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
+        this.stateOrderRepository = stateOrderRepository;
     }
 
     @PostMapping("/carts")
@@ -89,6 +96,62 @@ public class CartController {
         } catch (Exception e) {
             System.err.println("Error getting user's carts: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/carts/checkout")
+    public ResponseEntity<String> checkout(@RequestBody CheckoutRequest checkoutRequest) {
+        try {
+            int userId = checkoutRequest.getUserId();
+            User user = userRepository.findById(userId).orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            List<Cart> carts = cartRepository.findByUserId(userId);
+            if (carts.isEmpty()) {
+                return ResponseEntity.badRequest().body("The user's cart is empty");
+            }
+
+            StateOrder stateOrder = stateOrderRepository.findById(checkoutRequest.getStateOrderId()).orElse(null);
+            if (stateOrder == null) {
+                return ResponseEntity.badRequest().body("Invalid state order");
+            }
+
+            // Create an order
+            Orders order = new Orders();
+            order.setUser(user);
+            order.setStateOrder(stateOrder);
+            order.setOrderDate(new Date());
+            order.setAddress(checkoutRequest.getAddress());
+            order.setPhoneNumber(checkoutRequest.getPhone());
+
+            double total = 0;
+            List<OrderDetail> orderDetails = new ArrayList<>();
+            for (Cart cart : carts) {
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrders(order);
+                orderDetail.setProduct(cart.getProduct());
+                orderDetail.setQuantity(cart.getQuantity());
+                orderDetail.setPrice(cart.getProduct().getPrice()); // Assuming product price
+                total += cart.getProduct().getPrice() * cart.getQuantity();
+                orderDetails.add(orderDetail);
+            }
+            order.setOrderDetails(orderDetails);
+            order.setTotalPrice(total);
+            order.setStatusCheckout(checkoutRequest.getStatusCheckout());
+
+            // Save order
+            orderRepository.save(order);
+
+            // Clear user's cart
+            cartRepository.deleteAll(carts);
+
+            return ResponseEntity.ok("Checkout successfully");
+        } catch (Exception e) {
+            System.err.println("Error during checkout: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during checkout");
         }
     }
 
