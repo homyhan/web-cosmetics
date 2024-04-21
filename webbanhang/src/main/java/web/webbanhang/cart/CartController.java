@@ -99,6 +99,62 @@ public class CartController {
         }
     }
 
+//    @PostMapping("/carts/checkout")
+//    public ResponseEntity<String> checkout(@RequestBody CheckoutRequest checkoutRequest) {
+//        try {
+//            int userId = checkoutRequest.getUserId();
+//            User user = userRepository.findById(userId).orElse(null);
+//
+//            if (user == null) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            List<Cart> carts = cartRepository.findByUserId(userId);
+//            if (carts.isEmpty()) {
+//                return ResponseEntity.badRequest().body("The user's cart is empty");
+//            }
+//
+//            StateOrder stateOrder = stateOrderRepository.findById(checkoutRequest.getStateOrderId()).orElse(null);
+//            if (stateOrder == null) {
+//                return ResponseEntity.badRequest().body("Invalid state order");
+//            }
+//
+//            // Create an order
+//            Orders order = new Orders();
+//            order.setUser(user);
+//            order.setStateOrder(stateOrder);
+//            order.setOrderDate(new Date());
+//            order.setAddress(checkoutRequest.getAddress());
+//            order.setPhoneNumber(checkoutRequest.getPhone());
+//
+//            double total = 0;
+//            List<OrderDetail> orderDetails = new ArrayList<>();
+//            for (Cart cart : carts) {
+//                OrderDetail orderDetail = new OrderDetail();
+//                orderDetail.setOrders(order);
+//                orderDetail.setProduct(cart.getProduct());
+//                orderDetail.setQuantity(cart.getQuantity());
+//                orderDetail.setPrice(cart.getProduct().getPrice()); // Assuming product price
+//                total += cart.getProduct().getPrice() * cart.getQuantity();
+//                orderDetails.add(orderDetail);
+//            }
+//            order.setOrderDetails(orderDetails);
+//            order.setTotalPrice(total);
+//            order.setStatusCheckout(checkoutRequest.getStatusCheckout());
+//
+//            // Save order
+//            orderRepository.save(order);
+//
+//            // Clear user's cart
+//            cartRepository.deleteAll(carts);
+//
+//            return ResponseEntity.ok("Checkout successfully");
+//        } catch (Exception e) {
+//            System.err.println("Error during checkout: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during checkout");
+//        }
+//    }
+
     @PostMapping("/carts/checkout")
     public ResponseEntity<String> checkout(@RequestBody CheckoutRequest checkoutRequest) {
         try {
@@ -114,12 +170,19 @@ public class CartController {
                 return ResponseEntity.badRequest().body("The user's cart is empty");
             }
 
-            StateOrder stateOrder = stateOrderRepository.findById(checkoutRequest.getStateOrderId()).orElse(null);
+            StateOrder stateOrder;
+            if (checkoutRequest.getStatusCheckout() == 1) {
+                // statusCheckout 1 => stateOrderId 2
+                stateOrder = stateOrderRepository.findById(2).orElse(null);
+            } else {
+                stateOrder = stateOrderRepository.findById(1).orElse(null);
+            }
+
             if (stateOrder == null) {
                 return ResponseEntity.badRequest().body("Invalid state order");
             }
 
-            // Create an order
+            // Tao don hang
             Orders order = new Orders();
             order.setUser(user);
             order.setStateOrder(stateOrder);
@@ -142,10 +205,9 @@ public class CartController {
             order.setTotalPrice(total);
             order.setStatusCheckout(checkoutRequest.getStatusCheckout());
 
-            // Save order
+            // Luu don hang
             orderRepository.save(order);
 
-            // Clear user's cart
             cartRepository.deleteAll(carts);
 
             return ResponseEntity.ok("Checkout successfully");
@@ -154,5 +216,6 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during checkout");
         }
     }
+
 
 }
